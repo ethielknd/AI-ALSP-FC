@@ -13,6 +13,7 @@ struct Avion {
 
 struct Solucion {
     int *tpos_actual;
+    int *tpos_mejor;
     float aptitud_actual;
     float aptitud_mejor;
 };

@@ -41,6 +41,7 @@ void leer_archivo_configuracion(char* instancia, int *cant_aviones, int **Sij, v
 	}
 	fclose(archivo);
 	printf("leer_archivo_configuracion done!\n");
+	printf("\n");
 	*Sij = sij;
 }
 
@@ -112,14 +113,29 @@ void generar_solucion(Solucion &solucion, vector<Avion> &aviones, int cant_avion
 	if (solucion.aptitud_mejor < 0) {
 		solucion.aptitud_mejor = solucion.aptitud_actual;
 		for (i = 0; i < cant_aviones; i++) {
-			
+			solucion.tpos_mejor[i] = solucion.tpos_actual[i];
 		}
 	}
 	else {
 		if (solucion.aptitud_actual < solucion.aptitud_mejor) {
 			solucion.aptitud_mejor = solucion.aptitud_actual;
-
+			for (i = 0; i < cant_aviones; i++) {
+				solucion.tpos_mejor[i] = solucion.tpos_actual[i];
+			}
 		}
+	}
+	if (debug) {
+		printf("Aptitud actual: %f\n", solucion.aptitud_actual);
+		printf("Tiempos de aterrizaje actuales:\n");
+		for (i = 0; i < cant_aviones; i++) {
+			printf("    Avion %d: %d\n", i + 1, solucion.tpos_actual[i]);
+		}
+		printf("Mejor aptitud: %f\n", solucion.aptitud_mejor);
+		printf("Tiempos de mejor aterrizaje:\n");
+		for (i = 0; i < cant_aviones; i++) {
+			printf("    Avion %d: %d\n", i + 1, solucion.tpos_mejor[i]);
+		}
+		printf("\n");
 	}
 }
 
@@ -137,7 +153,7 @@ void forward_checking(vector<Avion> &aviones, int *Sij, int *instancias_aviones,
 		}
 	}
 	//Si llego acá encontré una solución
-
+	generar_solucion(solucion, aviones, cant_aviones);
 }
 
 int main(int argc, char *argv[]) {
@@ -155,8 +171,10 @@ int main(int argc, char *argv[]) {
 	generar_orden_aleatorio(&orden_instanciacion, cant_aviones);
 	
 	Solucion solucion;
-	solucion.tpos = (int *)malloc(sizeof(int)*cant_aviones);
-	solucion.aptitud = -1.0;
+	solucion.tpos_actual = (int *)malloc(sizeof(int)*cant_aviones);
+	solucion.aptitud_actual = -1.0;
+	solucion.tpos_mejor = (int *)malloc(sizeof(int)*cant_aviones);
+	solucion.aptitud_mejor = -1.0;
 
 	forward_checking(aviones, Sij, orden_instanciacion, nivel, cant_aviones, solucion);
 
