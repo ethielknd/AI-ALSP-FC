@@ -5,6 +5,16 @@ struct Avion {
     int Li;
     float gi;
     float hi;
+    int cot_inf;
+    int cot_sup;
+    int instanciado;
+    int tpo_actual;
+};
+
+struct Solucion {
+    int *tpos_actual;
+    float aptitud_actual;
+    float aptitud_mejor;
 };
 
 int leer_entradas(int,char **);
