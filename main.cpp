@@ -40,8 +40,10 @@ void leer_archivo_configuracion(char* instancia, int *cant_aviones, int **Sij, v
 		aviones.push_back(un_avion);
 	}
 	fclose(archivo);
-	printf("leer_archivo_configuracion done!\n");
-	printf("\n");
+	if (debug) {
+		printf("leer_archivo_configuracion done!\n");
+		printf("\n");
+	}
 	*Sij = sij;
 }
 
@@ -73,7 +75,7 @@ void generar_orden_aleatorio(int **lista, int cant_aviones) {
 	seleccion = cant_aviones;
 	while (inicial.size() > 0) {
 		pos = rand() % seleccion;
-		aux[pos_lista] = pos;
+		aux[pos_lista] = inicial[pos];
 		inicial.erase(inicial.begin() + pos);
 		pos_lista++;
 		seleccion--;
@@ -86,8 +88,12 @@ void filtrar_dominios(Avion activo, vector<Avion> &aviones, int *Sij, int cant_a
 	int i;
 	for (i = 0; i < cant_aviones; i++) {
 		if (aviones.at(i).instanciado != 1) { //Aviones no instanciados
-			if (aviones.at(i).cot_inf <= activo.tpo_actual + Sij[activo.pos*i + aviones.at(i).pos]) {
-				aviones.at(i).cot_inf = activo.tpo_actual + Sij[activo.pos*i + aviones.at(i).pos] + 1;
+			if (aviones.at(i).cot_inf <= activo.tpo_actual + Sij[activo.pos*cant_aviones + i]) {
+				aviones.at(i).cot_inf = activo.tpo_actual + Sij[activo.pos*cant_aviones + i] + 1;
+				if (debug) printf("El nuevo intervalo del Avion %d es: [%d, %d]\n", aviones.at(i).pos, aviones.at(i).cot_inf, aviones.at(i).cot_sup);
+			}
+			else {
+				if (debug) printf("El intervalo del Avion %d no cambió y es: [%d, %d]\n", aviones.at(i).pos, aviones.at(i).cot_inf, aviones.at(i).cot_sup);
 			}
 		}
 	}
@@ -143,17 +149,22 @@ void forward_checking(vector<Avion> &aviones, int *Sij, int *instancias_aviones,
 	int i, max_interval;
 	if (nivel < cant_aviones) {
 		aviones.at(instancias_aviones[nivel]).instanciado = 1; //Instancio un avión
+		if (debug) printf("\nSe ha instanciado el avion %d ", aviones.at(instancias_aviones[nivel]).pos);
 		i = aviones.at(instancias_aviones[nivel]).cot_inf;
 		max_interval = aviones.at(instancias_aviones[nivel]).cot_sup;
-		for (i; i < max_interval; i++) { //Instancio el tiempo desde el menor en el intervalo e itero en este
-			aviones.at(instancias_aviones[nivel]).tpo_actual = i;
-			filtrar_dominios(aviones.at(instancias_aviones[nivel]), aviones, Sij, cant_aviones); //Filtro de dominios
-			nivel += 1;
-			forward_checking(aviones, Sij, instancias_aviones, nivel, cant_aviones, solucion);
+		if (max_interval - i > 0) {
+			for (i; i <= max_interval; i++) { //Instancio el tiempo desde el menor en el intervalo e itero en este
+				aviones.at(instancias_aviones[nivel]).tpo_actual = i;
+				if (debug) printf("con el tpo_actual = %d ", aviones.at(instancias_aviones[nivel]).tpo_actual);
+				if (debug) printf("e intervalo [%d, %d]\n", i, max_interval);
+				filtrar_dominios(aviones.at(instancias_aviones[nivel]), aviones, Sij, cant_aviones); //Filtro de dominios
+				forward_checking(aviones, Sij, instancias_aviones, nivel + 1, cant_aviones, solucion);
+			}
 		}
 	}
 	//Si llego acá encontré una solución
 	generar_solucion(solucion, aviones, cant_aviones);
+	//if (debug) exit(1);
 }
 
 int main(int argc, char *argv[]) {
@@ -163,12 +174,29 @@ int main(int argc, char *argv[]) {
     }
 	srand(semilla);
 
-	int cant_aviones, i, nivel = 0;
+	int cant_aviones, i, j, nivel = 0;
 	int *Sij, *orden_instanciacion;
 	vector<Avion> aviones;
 
 	leer_archivo_configuracion(archivo_configuracion, &cant_aviones, &Sij, aviones);
+
+	if (debug) {
+		printf("\nMatriz Sij formada es:\n");
+		for (i = 0; i < cant_aviones; i++) {
+			for (j = 0; j < cant_aviones; j++) {
+				printf("%d ", Sij[cant_aviones*i + j]);
+			}
+			printf("\n");
+		}
+	}
 	generar_orden_aleatorio(&orden_instanciacion, cant_aviones);
+	if (debug) {
+		printf("\nOrden de instanciacion generado: ");
+		for (i = 0; i < cant_aviones; i++) {
+			printf("%d ", orden_instanciacion[i]);
+		}
+		printf("\n");
+	}
 	
 	Solucion solucion;
 	solucion.tpos_actual = (int *)malloc(sizeof(int)*cant_aviones);
