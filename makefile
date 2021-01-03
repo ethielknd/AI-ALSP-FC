@@ -5,8 +5,8 @@ prog=ALSP-FC
 #El problema
 config=Instancias/airland1.txt
 resultados=Out.txt
-semilla=123
-debug=1
+semilla=1609641949
+debug=0
 
 comp:$(prog)
 

@@ -12,17 +12,26 @@ struct Avion {
 };
 
 struct Solucion {
-    int *tpos_actual;
-    int *tpos_mejor;
-    float aptitud_actual;
-    float aptitud_mejor;
+    int *tiempos;
+    float aptitud;
+    long double cant_chequeos;
+    long double cant_instanciaciones;
+    long double cant_retornos;
+    double tiempo_sol;
 };
-
-int leer_entradas(int,char **);
-int int_rand (int,int);
 
 //Parámetros de ejecución del programa
 char* archivo_configuracion;
 char* archivo_resultados;
 int semilla;
 int debug;
+
+//Variables de medicion
+int cant_aviones;
+int *orden_instanciacion;
+int *Sij;
+Solucion mejor_solucion;
+Solucion solucion;
+
+clock_t start, end_time;
+double time_taken;
