@@ -46,6 +46,34 @@ void leer_archivo_configuracion(char* instancia, vector<Avion> &aviones){
 	fclose(archivo);
 }
 
+void print_en_pantalla() {
+	int i;
+	cout << "La mejor solución que se pudo encontrar hasta ahora es:\n";
+	cout << endl;
+	cout << "    ";
+	for (i = 0; i < cant_aviones; i++) {
+		cout << mejor_solucion.tiempos[i] << " ";
+	}
+	cout << endl;
+	cout << "\nCon la siguiente información:" << endl;
+	cout << "    Costo: " << mejor_solucion.aptitud << endl;
+	cout << "    Tiempo de ejecucion: " << mejor_solucion.tiempo_sol << endl;
+	cout << "    Cantidad de chequeos: " << mejor_solucion.cant_chequeos << endl;
+	cout << "    Cantidad de instanciaciones: " << mejor_solucion.cant_instanciaciones << endl;
+	cout << "    Cantidad de retornos: " << mejor_solucion.cant_retornos << endl;
+	cout << "\nAdemás, los aviones que se alcanzaron a instanciar para la solucion actual son:\n";
+	for (i = 0; i < cant_aviones; i++) {
+		if (solucion.tiempos[i] != -1) {
+			cout << "    Avion " << i << ": " << solucion.tiempos[i] << endl;
+		}
+	}
+	cout << "La información del programa es:" << endl;
+	cout << "    Cantidad de chequeos:" << solucion.cant_chequeos << endl;
+	cout << "    Cantidad de instanciaciones: " << solucion.cant_instanciaciones << endl;
+	cout << "    Cantidad de retornos: " << solucion.cant_retornos << endl;
+	cout << "    Tiempo de ejecucion: " << time_taken << " segundos" << endl;
+}
+
 void escribir_archivo_out() {
 	int i;
 	ofstream file;
@@ -55,7 +83,6 @@ void escribir_archivo_out() {
 	file << "    ";
 	for (i = 0; i < cant_aviones; i++) {
 		file << mejor_solucion.tiempos[i] << " ";
-		//file << "Avion " << i << ": " << mejor_solucion.tiempos[i] << endl;
 	}
 	file << endl;
 	file << "\nCon la siguiente información:" << endl;
@@ -70,7 +97,11 @@ void escribir_archivo_out() {
 			file << "    Avion " << i << ": " << solucion.tiempos[i] << endl;
 		}
 	}
-	file << "Y un tiempo total de ejecucion del programa de " << time_taken << " segundos" << endl;
+	file << "La información del programa es:" << endl;
+	file << "    Cantidad de chequeos:" << solucion.cant_chequeos << endl;
+	file << "    Cantidad de instanciaciones: " << solucion.cant_instanciaciones << endl;
+	file << "    Cantidad de retornos: " << solucion.cant_retornos << endl;
+	file << "    Tiempo de ejecucion: " << time_taken << " segundos" << endl;
 	file.close();
 }
 
@@ -219,7 +250,10 @@ void forward_checking(vector<Avion> &aviones, int nivel) {
 
 void interrupcion(){
 	end_time = clock();
+	time_taken = double(end_time - start) / double(CLOCKS_PER_SEC);
 	int i;
+	print_en_pantalla();
+	/*
 	printf("\n\n\nInformación de la mejor solución que se pudo encontrar:\n");
 	for (i = 0; i < cant_aviones; i++) {
 		printf("    Avion %d: %d\n", i, mejor_solucion.tiempos[i]);
@@ -236,7 +270,8 @@ void interrupcion(){
 	time_taken = double(end_time - start) / double(CLOCKS_PER_SEC);
 	cout << "\nEl tiempo de ejecucion ha sido de: " << fixed  
          << time_taken;
-    cout << " segundos " << endl; 
+    cout << " segundos " << endl;
+	*/
 	escribir_archivo_out();
 	free(mejor_solucion.tiempos);
 	free(solucion.tiempos);
@@ -245,7 +280,6 @@ void interrupcion(){
 }
 
 void my_handler(int s){
-	printf("\nCaught signal %d\n",s);
 	interrupcion();
 	exit(1);
 }
@@ -280,7 +314,7 @@ int main(int argc, char *argv[]) {
 	mejor_solucion.cant_instanciaciones = 0;
 	mejor_solucion.cant_retornos = 0;
 
-	if (!debug) {
+	if (debug) {
 		printf("\nMatriz Sij:\n");
 		for (i = 0; i < cant_aviones; i++) {
 			for (j = 0; j < cant_aviones; j++) {
@@ -310,25 +344,27 @@ int main(int argc, char *argv[]) {
 	forward_checking(aviones, nivel);
 	end_time = clock();
 	time_taken = double(end_time - start) / double(CLOCKS_PER_SEC);
-	int aux_inst = 0;
-	for (i = 0; i < cant_aviones; i++) {
-		if (solucion.tiempos[i] != -1) {
-			aux_inst += 1;
-		}
-	}
+	print_en_pantalla();
+	escribir_archivo_out();
+	// int aux_inst = 0;
+	// for (i = 0; i < cant_aviones; i++) {
+	// 	if (mejor_solucion.tiempos[i] != -1) {
+	// 		aux_inst += 1;
+	// 	}
+	// }
 
-	if (aux_inst == cant_aviones) {
-		printf("El óptimo global es el siguiente:\n");
-		printf("	Tiempos de aterrizaje: \n");
-		for (i = 0; i < cant_aviones; i++) {
-			printf("		Avion %d: %d\n", i, mejor_solucion.tiempos[i]);
-		}
-		printf("	Costo final: %f\n", mejor_solucion.aptitud);
-		printf("Tiempo de ejecución de programa: %lf\n", time_taken);
-	}
-	else {
-		printf("El problema no tiene solucion\n");
-	}
+	// if (aux_inst == cant_aviones) {
+	// 	printf("El óptimo global es el siguiente:\n");
+	// 	printf("	Tiempos de aterrizaje: \n");
+	// 	for (i = 0; i < cant_aviones; i++) {
+	// 		printf("		Avion %d: %d\n", i, mejor_solucion.tiempos[i]);
+	// 	}
+	// 	printf("	Costo final: %f\n", mejor_solucion.aptitud);
+	// 	printf("Tiempo de ejecución de programa: %lf\n", time_taken);
+	// }
+	// else {
+	// 	printf("El problema no tiene solucion\n");
+	// }
 	free(mejor_solucion.tiempos);
 	free(solucion.tiempos);
 	free(orden_instanciacion);
