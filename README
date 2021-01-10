@@ -1,0 +1,33 @@
+Algoritmo=FC
+Problema=ALSP
+Representacion=Lista de tiempos (Ver sección de representación en informe)
+Funcion_de_evaluacion=Funcion objetivo
+Formato Input=Según indicado en video de ayudantía
+
+Para Compilar use:
+make clean
+make 
+
+Para Ejecutar use:
+make exe
+
+Para probar distintos ordenes de instanciación, se pueden
+modificar estos valores en el makefile de la implementacion:
+
+config=Ubicación de las instancias
+resultados=Archivo txt en donde se escribirán los resultados
+semilla=Permite generar distintos ordenes de instanciación de aviones
+debug=Permite mostrar informacion por pantalla
+debug=0, no muestra informacion por pantalla
+
+Aclaraciones:
+La mejor solución se inicializó con un valor negativo, ya que en la práctica
+no se pueden tener valores menores a 0, así se podrá identificar una mejora en la
+solución.
+
+Puede suceder que el algoritmo finalice tempranamente dada la forma de la instancia a probar.
+En estos casos, se recomienda hacer variar la semilla, es un trabajo manual y requiere tiempo.
+A su vez, en estos casos lo que se muestre por pantalla y en el archivo de salida
+serán valores negativos, como el valor -1, los cuales son valores que durante la ejecución permiten
+instanciar aviones con algún tiempo y evitar que se guarde algún tiempo anterior, así se puede 
+obtener una solución limpia.
