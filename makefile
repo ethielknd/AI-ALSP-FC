@@ -3,9 +3,9 @@ comp=g++
 prog=ALSP-FC
 
 #El problema
-config=Instancias/airland1.txt
+config=Instancias/airland7.txt
 resultados=Out.txt
-semilla=5
+semilla=4
 debug=0
 
 comp:$(prog)
